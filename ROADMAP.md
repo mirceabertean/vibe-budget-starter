@@ -1,0 +1,41 @@
+# Vibe Budget — ROADMAP
+
+## ✅ Săptămâna 1-2 — Fundație (DONE)
+
+- [x] Setup proiect Next.js + Supabase
+- [x] Schema DB (users, banks, currencies, categories, transactions, user_keywords)
+- [x] Auth: login, register, logout
+- [x] Dashboard cu stats (luna curentă + total general) + navigare rapidă
+- [x] Pagina Bănci — CRUD complet
+- [x] Pagina Categorii — două tabele venituri/cheltuieli, CRUD
+- [x] Pagina Valute — preseturi + adăugare manuală
+- [x] Pagina Tranzacții — tabel cu filtre + modal adaugă/editează/șterge
+- [x] Pagina Upload — UI placeholder (fără logică)
+- [x] Sidebar cu navigare completă
+
+## ✅ Săptămâna 5, Lecția 5.1 — Upload CSV/Excel (DONE)
+
+- [x] Instalare librării: papaparse, xlsx, @types/papaparse
+- [x] Parsare fișiere CSV (`lib/utils/file-parser.ts` — parseCSV)
+- [x] Parsare fișiere Excel (`lib/utils/file-parser.ts` — parseExcel)
+  - [x] Detectare automată header row (suport metadata rows la început)
+  - [x] Suport format Raiffeisen (Suma debit / Suma credit)
+  - [x] Suport debit/credit split cu valori negative în Excel
+  - [x] Conversie format românesc virgulă → punct (parseAmount)
+- [x] Auto-categorizare tranzacții (`lib/auto-categorization/index.ts`)
+- [x] API endpoint `POST /api/transactions/import` (bulk insert + auto-categorization)
+- [x] Pagina Upload funcțională:
+  - [x] Loading indicator la parsare
+  - [x] Preview toate tranzacțiile (dată, descriere, sumă colorată, valută)
+  - [x] Mesaj eroare la parsare eșuată
+  - [x] Buton "Importă X tranzacții" (dezactivat fără bancă)
+  - [x] Loading la import, mesaj succes cu statistici
+  - [x] Butoane "Încarcă alt fișier" și "Vezi tranzacțiile"
+
+## 🔜 Viitor
+
+- [ ] Auto-categorizare bazată pe keyword-uri salvate de utilizator
+- [ ] Rapoarte și grafice
+- [ ] Integrare Claude AI (lib/ai/)
+- [ ] Export date
+- [ ] Navigation bar sticky

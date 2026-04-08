@@ -88,13 +88,14 @@ export async function parseCSV(file: File): Promise<ParseResult> {
               const amount = detectAmount(row);
               const currency = detectCurrency(row);
 
-              if (date && description && amount !== null) {
+              const parsedAmt = parseAmount(amount);
+              if (date && description && !isNaN(parsedAmt)) {
                 transactions.push({
                   date: formatDate(date),
                   description: description.trim(),
-                  amount: parseFloat(amount),
+                  amount: parsedAmt,
                   currency: currency || "RON",
-                  type: parseFloat(amount) < 0 ? "debit" : "credit",
+                  type: parsedAmt < 0 ? "debit" : "credit",
                   originalData: row, // Păstrăm datele originale
                 });
               }
@@ -155,11 +156,51 @@ export async function parseExcel(file: File): Promise<ParseResult> {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
 
-        // Convertim în JSON
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        // Citim toate rândurile ca array-uri brute pentru a găsi headerul real
+        const allRows: any[][] = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        // Căutăm rândul care conține headerele reale ale tranzacțiilor
+        // (rândul cu cel mai multe cuvinte-cheie financiare)
+        const headerKeywords = [
+          "data", "date", "descriere", "description", "detalii",
+          "debit", "credit", "suma", "sumă", "amount", "valoare",
+          "moneda", "currency", "referinta", "sold", "beneficiar",
+        ];
+
+        let headerRowIndex = 0;
+        let bestMatchCount = 0;
+
+        for (let i = 0; i < Math.min(allRows.length, 30); i++) {
+          const row = allRows[i];
+          if (!row || row.length < 2) continue;
+          const rowStr = row.map((c: any) => String(c ?? "").toLowerCase()).join(" ");
+          const matchCount = headerKeywords.filter((k) => rowStr.includes(k)).length;
+          if (matchCount > bestMatchCount) {
+            bestMatchCount = matchCount;
+            headerRowIndex = i;
+          }
+        }
+
+        console.log('[parseExcel] Header row detected at index:', headerRowIndex, '| matches:', bestMatchCount);
+        console.log('[parseExcel] Header row content:', allRows[headerRowIndex]);
+
+        // Construim jsonData pornind de la rândul de header detectat
+        const headers = allRows[headerRowIndex];
+        const jsonData = allRows
+          .slice(headerRowIndex + 1)
+          .map((row) => {
+            const obj: Record<string, any> = {};
+            headers.forEach((h: any, i: number) => {
+              if (h !== undefined && h !== null && String(h).trim() !== "") {
+                obj[String(h)] = row[i];
+              }
+            });
+            return obj;
+          })
+          .filter((row) => Object.values(row).some((v) => v !== undefined && v !== null && String(v).trim() !== ""));
 
         console.log('[parseExcel] Sheet name:', sheetName);
-        console.log('[parseExcel] Total rows:', jsonData.length);
+        console.log('[parseExcel] Total rows after header:', jsonData.length);
         console.log('[parseExcel] First row sample:', jsonData[0]);
         console.log('[parseExcel] Column headers:', Object.keys(jsonData[0] || {}));
 
@@ -192,13 +233,14 @@ export async function parseExcel(file: File): Promise<ParseResult> {
               });
             }
 
-            if (date && description && amount !== null) {
+            const parsedAmt = parseAmount(amount);
+            if (date && description && !isNaN(parsedAmt)) {
               transactions.push({
                 date: formatDate(date),
                 description: description.trim(),
-                amount: parseFloat(amount),
+                amount: parsedAmt,
                 currency: currency || "RON",
-                type: parseFloat(amount) < 0 ? "debit" : "credit",
+                type: parsedAmt < 0 ? "debit" : "credit",
                 originalData: row,
               });
             } else {
@@ -301,18 +343,29 @@ function detectDate(row: any): string | null {
 }
 
 function detectDescription(row: any): string | null {
-  // Adăugăm variante cu diacritice pentru Revolut România
-  // RUSSIAN: "Описание" (Description)
-  const descKeys = [
-    "descriere", "description", "detalii", "details", "beneficiar",
-    "описание", // Russian: description
-  ];
+  // Căutăm în ordine de prioritate: mai întâi coloane specifice, apoi fallback
+  // RAIFFEISEN: "Descrierea tranzactiei"
+  // REVOLUT / generice: "descriere", "description", "detalii"
+  // RUSSIAN: "Описание"
+  // FALLBACK: "beneficiar" (mai puțin specific — poate fi cod fiscal)
+  const priorityKeys = ["descrierea", "descriere", "description", "detalii", "details", "описание"];
+  const fallbackKeys = ["beneficiar"];
 
-  for (const key of Object.keys(row)) {
-    const normalizedKey = key.toLowerCase().trim();
-    if (descKeys.some((k) => normalizedKey.includes(k))) {
-      console.log('[detectDescription] Found description column:', key, '→', row[key]);
-      return row[key];
+  for (const priority of priorityKeys) {
+    for (const key of Object.keys(row)) {
+      if (key.toLowerCase().trim().includes(priority)) {
+        console.log('[detectDescription] Found description column:', key, '→', row[key]);
+        return row[key];
+      }
+    }
+  }
+
+  for (const fallback of fallbackKeys) {
+    for (const key of Object.keys(row)) {
+      if (key.toLowerCase().trim().includes(fallback)) {
+        console.log('[detectDescription] Found description column (fallback):', key, '→', row[key]);
+        return row[key];
+      }
     }
   }
 
@@ -329,20 +382,24 @@ function detectAmount(row: any): string | null {
     "сумма", // Russian: amount
   ];
 
-  // Căutăm o coloană cu suma
+  // Căutăm o coloană cu suma — EXCLUDEM coloanele "Suma debit" / "Suma credit"
+  // (Raiffeisen split — sunt gestionate separat mai jos ca debit/credit)
   for (const key of Object.keys(row)) {
-    // Normalizăm: lowercase + trim spații invizibile
     const normalizedKey = key.toLowerCase().trim();
-
-    // DEBUG: Verificăm fiecare cheie
+    // Sărim peste coloanele de tip "suma debit" / "suma credit"
+    if (normalizedKey.includes("debit") || normalizedKey.includes("credit")) continue;
     const matches = amountKeys.filter(k => normalizedKey.includes(k));
     if (matches.length > 0) {
-      console.log('[detectAmount] ✅ MATCH! Key:', `"${key}"`, '→ normalized:', `"${normalizedKey}"`, '→ matched:', matches);
-      return row[key];
+      const rawValue = row[key];
+      // Returnăm doar dacă valoarea nu e goală
+      if (rawValue !== undefined && rawValue !== null && String(rawValue).trim() !== "") {
+        console.log('[detectAmount] ✅ MATCH! Key:', `"${key}"`, '→ value:', rawValue);
+        return rawValue;
+      }
     }
   }
 
-  // Dacă nu găsim, verificăm dacă există coloane separate Debit/Credit (format ING)
+  // Coloane separate Debit/Credit (format ING, Raiffeisen: "Suma debit" / "Suma credit")
   const debitKeys = ["debit"];
   const creditKeys = ["credit"];
 
@@ -359,15 +416,24 @@ function detectAmount(row: any): string | null {
     }
   }
 
-  // Dacă avem Debit/Credit, returnăm valoarea care nu e goală
+  // Dacă avem Debit/Credit, returnăm valoarea care nu e zero
   // Debit = negativ (cheltuială), Credit = pozitiv (venit)
-  if (debitValue && debitValue.trim() !== "") {
-    console.log('[detectAmount] Found debit value:', debitValue);
-    return `-${debitValue}`;
+  // IMPORTANT: valorile pot fi numere sau string-uri cu format românesc ("0,00")
+  const debitNum = debitValue !== undefined && debitValue !== null
+    ? parseAmount(String(debitValue))
+    : NaN;
+  const creditNum = creditValue !== undefined && creditValue !== null
+    ? parseAmount(String(creditValue))
+    : NaN;
+
+  if (!isNaN(debitNum) && debitNum !== 0) {
+    console.log('[detectAmount] Found debit value:', debitValue, '→', debitNum);
+    // Debit = cheltuială = negativ (indiferent cum e stocat în Excel)
+    return String(debitNum > 0 ? -debitNum : debitNum);
   }
-  if (creditValue && creditValue.trim() !== "") {
-    console.log('[detectAmount] Found credit value:', creditValue);
-    return creditValue;
+  if (!isNaN(creditNum) && creditNum !== 0) {
+    console.log('[detectAmount] Found credit value:', creditValue, '→', creditNum);
+    return String(Math.abs(creditNum));
   }
 
   console.warn('[detectAmount] No amount found in row:', Object.keys(row));
@@ -389,6 +455,30 @@ function detectCurrency(row: any): string | null {
   }
 
   return null;
+}
+
+/**
+ * Parsează o sumă care poate fi în format românesc/european
+ * Exemple: "45,50" → 45.5 | "1.234,56" → 1234.56 | "-500,00" → -500 | 500 → 500
+ */
+function parseAmount(value: string | number | null | undefined): number {
+  if (value === null || value === undefined) return NaN;
+  if (typeof value === "number") return value;
+
+  let cleaned = String(value).trim().replace(/\s/g, "");
+  if (cleaned === "") return NaN;
+
+  // Format cu paranteză: (500,00) → -500
+  if (cleaned.startsWith("(") && cleaned.endsWith(")")) {
+    cleaned = "-" + cleaned.slice(1, -1);
+  }
+
+  // Format european cu virgulă ca separator zecimal: "1.234,56" sau "45,50"
+  if (cleaned.includes(",")) {
+    cleaned = cleaned.replace(/\./g, "").replace(",", ".");
+  }
+
+  return parseFloat(cleaned);
 }
 
 /**
