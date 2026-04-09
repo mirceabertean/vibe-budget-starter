@@ -15,7 +15,7 @@ interface TransactionRow {
   amount: string;
   date: string;
   category_id: string | null;
-  categories: CategoryRow | null;
+  categories: CategoryRow | CategoryRow[] | null;
 }
 
 export async function GET(request: NextRequest) {
@@ -53,7 +53,7 @@ export async function GET(request: NextRequest) {
     // Map: "YYYY-MM" → total cheltuieli
     const monthMap = new Map<string, number>();
 
-    for (const tx of (transactions as TransactionRow[]) ?? []) {
+    for (const tx of (transactions as unknown as TransactionRow[]) ?? []) {
       const amount = parseFloat(tx.amount);
       if (isNaN(amount)) continue;
 
@@ -63,10 +63,13 @@ export async function GET(request: NextRequest) {
         const abs = Math.abs(amount);
         totalExpenses += abs;
 
+        // Supabase poate returna categories ca obiect sau array — normalizăm
+        const cat = Array.isArray(tx.categories) ? tx.categories[0] : tx.categories;
+
         // Grupare pe categorie
         const key = tx.category_id ?? "__none__";
-        const catName = tx.categories?.name ?? "Fără categorie";
-        const catColor = tx.categories?.color ?? "#9ca3af";
+        const catName = cat?.name ?? "Fără categorie";
+        const catColor = cat?.color ?? "#9ca3af";
 
         if (categoryMap.has(key)) {
           categoryMap.get(key)!.total += abs;
