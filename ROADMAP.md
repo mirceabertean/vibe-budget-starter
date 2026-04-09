@@ -32,10 +32,28 @@
   - [x] Loading la import, mesaj succes cu statistici
   - [x] Butoane "Încarcă alt fișier" și "Vezi tranzacțiile"
 
+## ✅ Sesiunea 2026-04-09 — Rapoarte, AI Coach, Deploy (DONE)
+
+- [x] Pagina Tranzacții: filtru "Fără categorie" (`__none__`)
+- [x] Bulk edit tranzacții cu checkbox + action bar (categorie + bancă)
+- [x] API `PATCH /api/transactions/bulk-update`
+- [x] Pagina Rapoarte (`/dashboard/reports`):
+  - [x] Pie chart cheltuieli pe categorii (Recharts)
+  - [x] Bar chart cheltuieli pe luni (Recharts)
+  - [x] 3 carduri sumar: cheltuieli / venituri / balanță
+  - [x] Filtre perioadă: luna curentă / 3 luni / 6 luni / tot
+- [x] AI Financial Coach (`POST /api/ai/financial-coach`):
+  - [x] Health score 0-100 cu bară progres colorată
+  - [x] Observație pozitivă + 3-5 sfaturi personalizate
+  - [x] Buton "Analizează cheltuielile" + "Reanalizează"
+- [x] Dashboard: navigare rapidă completă (toate 6 secțiuni)
+- [x] Deploy pe Vercel: https://vibe-budget-starter-inky.vercel.app
+- [x] Variabile de mediu setate pe Vercel (Supabase + Anthropic)
+
 ## 🔜 Viitor
 
-- [ ] Auto-categorizare bazată pe keyword-uri salvate de utilizator
-- [ ] Rapoarte și grafice
-- [ ] Integrare Claude AI (lib/ai/)
-- [ ] Export date
-- [ ] Navigation bar sticky
+- [ ] Auto-categorizare bazată pe keyword-uri salvate de utilizator (UI pentru salvare keywords)
+- [ ] Fix dată format MM/DD vs DD/MM la import Excel (Raiffeisen)
+- [ ] Export date (CSV/Excel)
+- [ ] Navigation bar sticky pe mobile
+- [ ] Domeniu custom pe Vercel

@@ -1,5 +1,52 @@
 # Session Log
 
+## [2026-04-09] — Rapoarte, AI Financial Coach, Deploy Vercel
+
+### Ce s-a făcut
+- **Pagina Tranzacții** — adăugat filtru "Fără categorie" (`category_id = null`) și bulk edit cu checkbox (selectare multiplă + action bar pentru categorie/bancă)
+- **API `PATCH /api/transactions/bulk-update`** — actualizare în masă cu Supabase `.in("id", ids)`
+- **Pagina Rapoarte** (`/dashboard/reports`):
+  - Pie chart cheltuieli pe categorii cu culorile categoriei (Recharts `PieChart`)
+  - Bar chart cheltuieli pe luni (Recharts `BarChart` + `ResponsiveContainer`)
+  - 3 carduri sumar: total cheltuieli (roșu), total venituri (verde), balanță (verde/roșu)
+  - Filtre perioadă: luna curentă / ultimele 3 luni / ultimele 6 luni / tot
+  - Stare goală dacă nu există date în perioadă
+- **API `GET /api/dashboard/reports`** — agregare server-side: cheltuieli pe categorie + pe luni + totaluri
+- **AI Financial Coach** (`POST /api/ai/financial-coach`):
+  - Folosește `claude-haiku-4-5-20251001` pentru viteză + cost mic
+  - Returnează health score 0-100 + explicație + observație pozitivă + 3-5 sfaturi
+  - Buton "✨ Analizează cheltuielile" + "Reanalizează" după afișare
+  - Fix JSON parse: `rawText.match(/\{[\s\S]*\}/)` pentru a extrage JSON din orice poziție
+- **Dashboard** — navigare rapidă completă: adăugate carduri Tranzacții, Upload, Rapoarte
+- **Deploy Vercel**:
+  - Creat repo GitHub `mirceabertean/vibe-budget-starter`
+  - 4 fix-uri TypeScript pentru compatibilitate Recharts v3 (index signature, `percent` vs `percentage`, `unknown` cast)
+  - Setate 5 variabile de mediu pe Vercel via CLI
+  - App live: https://vibe-budget-starter-inky.vercel.app
+
+### Ce rămâne
+- [ ] Fix dată format MM/DD vs DD/MM la import Excel (Raiffeisen) — codul e pregătit, Edit a fost întrerupt anterior
+- [ ] UI pentru salvare keywords auto-categorizare
+- [ ] Export date CSV/Excel
+- [ ] Navigation bar sticky pe mobile
+- [ ] Domeniu custom pe Vercel
+
+### Commits
+- `dce907e` Add reports, AI financial coach, and prepare for deploy
+- `2e8d541` Fix TypeScript error in reports route for Vercel build
+- `54b6f67` Fix Recharts TypeScript types for Vercel build
+- `782b9d7` Fix Pie label TypeScript type for Vercel build
+- `f0d055e` Fix Pie label using percent prop from Recharts v3
+
+### Decizii importante
+- `claude-haiku-4-5-20251001` ales față de Sonnet pentru latență mică (analiză financiară e simplă)
+- JSON extras cu regex `\{[\s\S]*\}` — mai robust decât strip markdown
+- Recharts v3 cere `[key: string]: unknown` index signature pe datele din `<Pie data={}>`
+- Recharts `<Pie label>` primește `percent` (0-1), nu `percentage` — convertit la `(percent * 100).toFixed(1)%`
+- Variabilele Supabase și Anthropic setate pe Vercel cu `vercel env add` via CLI
+
+---
+
 ## [2026-04-08] — Upload CSV/Excel + Import Tranzacții
 
 ### Ce s-a făcut
