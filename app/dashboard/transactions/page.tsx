@@ -72,6 +72,12 @@ export default function TransactionsPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
+  // Selecție bulk
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkCategory, setBulkCategory] = useState("");
+  const [bulkBank, setBulkBank] = useState("");
+  const [bulkSaving, setBulkSaving] = useState(false);
+
   const fetchTransactions = useCallback(async () => {
     setLoading(true);
     try {
@@ -194,6 +200,58 @@ export default function TransactionsPage() {
     setDateTo("");
   };
 
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === transactions.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(transactions.map((t) => t.id)));
+    }
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
+    setBulkCategory("");
+    setBulkBank("");
+  };
+
+  const handleBulkSave = async () => {
+    if (selectedIds.size === 0) return;
+    if (bulkCategory === "" && bulkBank === "") {
+      toast.error("Selectează cel puțin o categorie sau bancă de aplicat");
+      return;
+    }
+    setBulkSaving(true);
+    try {
+      const updateData: Record<string, string | null> = {};
+      if (bulkCategory !== "") updateData.category_id = bulkCategory === "__none__" ? null : bulkCategory;
+      if (bulkBank !== "") updateData.bank_id = bulkBank === "__none__" ? null : bulkBank;
+
+      const res = await fetch("/api/transactions/bulk-update", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds), ...updateData }),
+      });
+      const data = await res.json();
+      if (!res.ok) { toast.error(data.error || "Eroare la actualizare"); return; }
+      toast.success(`${selectedIds.size} tranzacții actualizate!`);
+      clearSelection();
+      fetchTransactions();
+    } catch {
+      toast.error("A apărut o eroare neașteptată");
+    } finally {
+      setBulkSaving(false);
+    }
+  };
+
   const hasFilters = search || bankFilter || categoryFilter || dateFrom || dateTo;
 
 
@@ -270,6 +328,7 @@ export default function TransactionsPage() {
               className="w-full border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               <option value="">Toate categoriile</option>
+              <option value="__none__">— Fără categorie</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
               ))}
@@ -310,6 +369,54 @@ export default function TransactionsPage() {
         </div>
       </div>
 
+      {/* Action bar bulk — apare când e cel puțin o selecție */}
+      {selectedIds.size > 0 && (
+        <div className="bg-teal-50 border border-teal-200 rounded-lg px-4 py-3 flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium text-teal-800 whitespace-nowrap">
+            {selectedIds.size} selectate
+          </span>
+          <div className="flex flex-wrap items-center gap-2 flex-1">
+            <select
+              value={bulkCategory}
+              onChange={(e) => setBulkCategory(e.target.value)}
+              className="border border-teal-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+            >
+              <option value="">Categorie: lasă neschimbat</option>
+              <option value="__none__">— Fără categorie —</option>
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+              ))}
+            </select>
+            <select
+              value={bulkBank}
+              onChange={(e) => setBulkBank(e.target.value)}
+              className="border border-teal-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+            >
+              <option value="">Bancă: lasă neschimbat</option>
+              <option value="__none__">— Fără bancă —</option>
+              {banks.map((b) => (
+                <option key={b.id} value={b.id}>{b.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={handleBulkSave}
+              disabled={bulkSaving || (bulkCategory === "" && bulkBank === "")}
+              className="bg-teal-600 hover:bg-teal-700 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-colors"
+            >
+              {bulkSaving ? "Se salvează..." : "Aplică"}
+            </button>
+            <button
+              onClick={clearSelection}
+              className="border border-teal-300 text-teal-700 hover:bg-teal-100 px-3 py-1.5 rounded-lg text-sm transition-colors"
+            >
+              Anulează
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Tabel */}
       <div className="bg-white shadow rounded-lg overflow-hidden">
         {loading ? (
@@ -328,6 +435,14 @@ export default function TransactionsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="px-4 py-3 w-8">
+                  <input
+                    type="checkbox"
+                    checked={transactions.length > 0 && selectedIds.size === transactions.length}
+                    onChange={toggleSelectAll}
+                    className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                  />
+                </th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Dată</th>
                 <th className="text-left px-4 py-3 font-medium text-gray-600">Descriere</th>
                 <th className="text-right px-4 py-3 font-medium text-gray-600">Sumă</th>
@@ -344,8 +459,17 @@ export default function TransactionsPage() {
                 return (
                   <tr
                     key={tx.id}
-                    className="border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors"
+                    className={`border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors ${selectedIds.has(tx.id) ? "bg-teal-50 hover:bg-teal-50" : ""}`}
                   >
+                    {/* Checkbox */}
+                    <td className="px-4 py-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(tx.id)}
+                        onChange={() => toggleSelect(tx.id)}
+                        className="rounded border-gray-300 text-teal-600 focus:ring-teal-500 cursor-pointer"
+                      />
+                    </td>
                     {/* Dată */}
                     <td className="px-4 py-3 text-gray-600 whitespace-nowrap">
                       {new Date(tx.date + "T00:00:00").toLocaleDateString("ro-RO", {

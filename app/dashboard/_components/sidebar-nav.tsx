@@ -16,6 +16,7 @@ const navItems: NavItem[] = [
   { href: "/dashboard/categories", label: "Categorii", icon: "📁" },
   { href: "/dashboard/currencies", label: "Valute", icon: "💱" },
   { href: "/dashboard/upload", label: "Upload", icon: "📤" },
+  { href: "/dashboard/reports", label: "Rapoarte", icon: "📈" },
 ];
 
 export function SidebarNav() {

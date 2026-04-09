@@ -154,6 +154,16 @@ export default function DashboardPage() {
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Link
+            href="/dashboard/transactions"
+            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+          >
+            <span className="text-3xl">💳</span>
+            <div>
+              <p className="font-semibold text-gray-900">Tranzacții</p>
+              <p className="text-sm text-gray-600">Vezi și editează tranzacțiile</p>
+            </div>
+          </Link>
+          <Link
             href="/dashboard/banks"
             className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
           >
@@ -181,6 +191,26 @@ export default function DashboardPage() {
             <div>
               <p className="font-semibold text-gray-900">Valute</p>
               <p className="text-sm text-gray-600">Gestionează valutele</p>
+            </div>
+          </Link>
+          <Link
+            href="/dashboard/upload"
+            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+          >
+            <span className="text-3xl">📤</span>
+            <div>
+              <p className="font-semibold text-gray-900">Upload</p>
+              <p className="text-sm text-gray-600">Importă fișiere CSV / Excel</p>
+            </div>
+          </Link>
+          <Link
+            href="/dashboard/reports"
+            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+          >
+            <span className="text-3xl">📈</span>
+            <div>
+              <p className="font-semibold text-gray-900">Rapoarte</p>
+              <p className="text-sm text-gray-600">Grafice și analiză AI</p>
             </div>
           </Link>
         </div>

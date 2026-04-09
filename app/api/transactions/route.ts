@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (bankId) query = query.eq("bank_id", bankId);
-    if (categoryId) query = query.eq("category_id", categoryId);
+    if (categoryId === "__none__") query = query.is("category_id", null);
+    else if (categoryId) query = query.eq("category_id", categoryId);
     if (dateFrom) query = query.gte("date", dateFrom);
     if (dateTo) query = query.lte("date", dateTo);
     if (search) query = query.ilike("description", `%${search}%`);
