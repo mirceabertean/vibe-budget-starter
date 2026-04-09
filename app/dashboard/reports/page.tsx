@@ -26,12 +26,14 @@ interface CategoryExpense {
   categoryColor: string;
   total: number;
   percentage: number;
+  [key: string]: unknown;
 }
 
 interface MonthExpense {
   month: string;
   label: string;
   total: number;
+  [key: string]: unknown;
 }
 
 interface ReportsData {
