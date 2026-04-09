@@ -314,7 +314,7 @@ export default function ReportsPage() {
                           cx="50%"
                           cy="45%"
                           outerRadius={100}
-                          label={({ percentage }) => `${percentage}%`}
+                          label={(props: Record<string, unknown>) => `${props.percentage}%`}
                           labelLine={false}
                         >
                           {data.expensesByCategory.map((entry, index) => (
