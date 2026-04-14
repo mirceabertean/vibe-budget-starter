@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export default function LoginPage() {
+// Componentă separată pentru a putea fi învelită în Suspense
+// (Next.js 16 cere Suspense în jurul useSearchParams la build static)
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
@@ -44,6 +46,57 @@ export default function LoginPage() {
   };
 
   return (
+    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          placeholder="email@exemplu.com"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-sm font-medium text-gray-700">Parolă</label>
+          <Link href="/forgot-password" className="text-xs text-teal-600 hover:text-teal-700">
+            Am uitat parola
+          </Link>
+        </div>
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          placeholder="••••••••"
+          className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
+        />
+      </div>
+
+      {success && (
+        <p className="text-green-700 text-sm bg-green-50 rounded-lg px-4 py-2">{success}</p>
+      )}
+
+      {error && (
+        <p className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2">{error}</p>
+      )}
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-semibold rounded-lg py-3 mt-1 transition-colors"
+      >
+        {loading ? "Se conectează..." : "Conectează-te"}
+      </button>
+    </form>
+  );
+}
+
+export default function LoginPage() {
+  return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
         {/* Logo */}
@@ -53,56 +106,9 @@ export default function LoginPage() {
           <p className="text-gray-500 text-sm mt-1">Conectează-te la contul tău</p>
         </div>
 
-        <form onSubmit={handleLogin} className="flex flex-col gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="email@exemplu.com"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-1">
-              <label className="block text-sm font-medium text-gray-700">Parolă</label>
-              <Link href="/forgot-password" className="text-xs text-teal-600 hover:text-teal-700">
-                Am uitat parola
-              </Link>
-            </div>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-
-          {success && (
-            <p className="text-green-700 text-sm bg-green-50 rounded-lg px-4 py-2">
-              {success}
-            </p>
-          )}
-
-          {error && (
-            <p className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2">
-              {error}
-            </p>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-semibold rounded-lg py-3 mt-1 transition-colors"
-          >
-            {loading ? "Se conectează..." : "Conectează-te"}
-          </button>
-        </form>
+        <Suspense fallback={null}>
+          <LoginForm />
+        </Suspense>
 
         <p className="text-center text-gray-500 text-sm mt-6">
           Nu ai cont?{" "}
