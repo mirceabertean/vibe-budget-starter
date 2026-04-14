@@ -50,8 +50,17 @@
 - [x] Deploy pe Vercel: https://vibe-budget-starter-inky.vercel.app
 - [x] Variabile de mediu setate pe Vercel (Supabase + Anthropic)
 
+## ✅ Sesiunea 2026-04-14 — Resetare și schimbare parolă (DONE)
+
+- [x] Pagina `/forgot-password` — email → Supabase trimite link de resetare
+- [x] Pagina `/reset-password` — setare parolă nouă din link email
+- [x] Pagina `/dashboard/settings` — schimbare parolă pentru utilizatori logați
+- [x] Login page — link "Am uitat parola" lângă câmpul Parolă
+- [x] Deploy pe Vercel
+
 ## 🔜 Viitor
 
+- [ ] Configurare Supabase: adăugat URL redirect pentru reset parolă în producție
 - [ ] Auto-categorizare bazată pe keyword-uri salvate de utilizator (UI pentru salvare keywords)
 - [ ] Fix dată format MM/DD vs DD/MM la import Excel (Raiffeisen)
 - [ ] Export date (CSV/Excel)

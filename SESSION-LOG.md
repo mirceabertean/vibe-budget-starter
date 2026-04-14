@@ -1,5 +1,32 @@
 # Session Log
 
+## [2026-04-14] — Resetare și schimbare parolă
+
+### Ce s-a făcut
+- **`/forgot-password`** — formular cu email; apelează `supabase.auth.resetPasswordForEmail()` cu `redirectTo: window.location.origin + /reset-password`; afișează mesaj succes cu opțiune "încearcă din nou"
+- **`/reset-password`** — formular parolă nouă + confirmare; ascultă evenimentul `PASSWORD_RECOVERY` de la Supabase pentru a activa formularul; apelează `supabase.auth.updateUser({ password })`; redirect la `/login?reset=success` după succes
+- **`/dashboard/settings`** — pagină "Setări cont" cu formular schimbare parolă pentru utilizatori logați; afișează eroarea exactă Supabase (util pentru debugging)
+- **Login page** — link "Am uitat parola" adăugat lângă label-ul Parolă; mesaj verde de confirmare la `?reset=success`
+- **Sidebar** — adăugat link "Setări cont ⚙️"
+- **Deploy** — commit + push; Vercel a deploy-at automat
+
+### Ce rămâne
+- [ ] Configurare Supabase Dashboard: adăugat `https://vibe-budget-starter-inky.vercel.app/reset-password` la Redirect URLs (Authentication → URL Configuration) — necesar pentru resetare parolă în producție
+- [ ] Auto-categorizare bazată pe keyword-uri salvate de utilizator (UI pentru salvare keywords)
+- [ ] Fix dată format MM/DD vs DD/MM la import Excel (Raiffeisen)
+- [ ] Export date (CSV/Excel)
+- [ ] Navigation bar sticky pe mobile
+
+### Commits
+- `7efefef` Add forgot password and change password features
+
+### Decizii importante
+- `/reset-password` așteaptă evenimentul `PASSWORD_RECOVERY` (nu URL hash manual) — Supabase browser client îl emite automat când detectează token-ul din hash
+- Eroarea Supabase afișată direct în `/dashboard/settings` (nu mesaj generic) — mai util pentru debugging
+- `supabase.auth.updateUser({ password })` funcționează direct fără verificarea parolei vechi — utilizatorul e deja autentificat
+
+---
+
 ## [2026-04-09] — Rapoarte, AI Financial Coach, Deploy Vercel
 
 ### Ce s-a făcut
