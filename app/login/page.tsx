@@ -1,16 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get("reset") === "success") {
+      setSuccess("Parola a fost resetată cu succes. Te poți autentifica acum.");
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,7 +67,12 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Parolă</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium text-gray-700">Parolă</label>
+              <Link href="/forgot-password" className="text-xs text-teal-600 hover:text-teal-700">
+                Am uitat parola
+              </Link>
+            </div>
             <input
               type="password"
               value={password}
@@ -69,6 +82,12 @@ export default function LoginPage() {
               className="w-full border border-gray-300 rounded-lg px-4 py-3 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
+
+          {success && (
+            <p className="text-green-700 text-sm bg-green-50 rounded-lg px-4 py-2">
+              {success}
+            </p>
+          )}
 
           {error && (
             <p className="text-red-600 text-sm bg-red-50 rounded-lg px-4 py-2">
