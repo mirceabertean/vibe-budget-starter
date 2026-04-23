@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarNav } from "./_components/sidebar-nav";
 import { LogoutButton } from "./_components/logout-button";
+import { MobileHeader } from "./_components/mobile-header";
 
 export default async function DashboardLayout({
   children,
@@ -49,14 +50,8 @@ export default async function DashboardLayout({
 
       {/* Main content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header — Mobile */}
-        <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">💰</span>
-            <span className="font-bold text-gray-900">Vibe Budget</span>
-          </div>
-          <LogoutButton />
-        </header>
+        {/* Header — Mobile cu hamburger */}
+        <MobileHeader displayName={displayName} />
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto p-4 md:p-6">{children}</main>
