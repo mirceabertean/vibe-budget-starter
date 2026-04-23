@@ -32,7 +32,7 @@ function LoginForm() {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        setError("Email sau parolă incorectă.");
+        setError("Email sau parolă incorecte.");
         return;
       }
 
@@ -89,7 +89,7 @@ function LoginForm() {
         disabled={loading}
         className="w-full bg-teal-600 hover:bg-teal-700 disabled:opacity-60 text-white font-semibold rounded-lg py-3 mt-1 transition-colors"
       >
-        {loading ? "Se conectează..." : "Conectează-te"}
+        {loading ? "Se conectează..." : "Intră în cont"}
       </button>
     </form>
   );

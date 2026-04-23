@@ -134,7 +134,7 @@ export default function UploadPage() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Upload Tranzacții</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Importă Tranzacții</h1>
         <Link
           href="/dashboard"
           className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
@@ -146,7 +146,7 @@ export default function UploadPage() {
       {/* Card form */}
       <div className="bg-white shadow rounded-lg p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-5">
-          Importă din CSV sau Excel
+          Încarcă extrasul de la bancă
         </h2>
 
         <div className="flex flex-col gap-4">
@@ -173,7 +173,7 @@ export default function UploadPage() {
               onChange={(e) => setSelectedBank(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
-              <option value="">Selectează bancă...</option>
+              <option value="">Alege banca...</option>
               {banks.map((b) => (
                 <option key={b.id} value={b.id}>{b.name}</option>
               ))}
@@ -192,7 +192,7 @@ export default function UploadPage() {
             {importing
               ? "Se importă..."
               : parsedTransactions.length > 0
-              ? `Importă ${parsedTransactions.length} tranzacții`
+              ? `Importă ${parsedTransactions.length} tranzacții →`
               : "Importă tranzacții"}
           </button>
         </div>
@@ -264,7 +264,7 @@ export default function UploadPage() {
       {!parsing && !parseError && parsedTransactions.length > 0 && (
         <div className="bg-white shadow rounded-lg overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-100">
-            <h2 className="text-base font-semibold text-gray-900">Preview tranzacții</h2>
+            <h2 className="text-base font-semibold text-gray-900">Previzualizare tranzacții</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

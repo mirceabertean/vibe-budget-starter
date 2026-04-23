@@ -82,7 +82,7 @@ function CategoryTable({ title, type, categories, onAdd, onEdit, onDelete, delet
                 <td className="px-4 py-2 text-gray-900 font-medium">
                   {cat.name}
                   {cat.is_system_category && (
-                    <span className="ml-2 text-xs text-gray-400 font-normal">Sistem</span>
+                    <span className="ml-2 text-xs text-gray-400 font-normal">Categorie implicită</span>
                   )}
                 </td>
                 <td className="px-4 py-2">
@@ -228,7 +228,7 @@ export default function CategoriesPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">📁 Categorii</h1>
         <p className="text-sm text-gray-600 mt-1">
-          Gestionează categoriile pentru venituri și cheltuieli
+          Organizează cheltuielile pe categorii
         </p>
       </div>
 

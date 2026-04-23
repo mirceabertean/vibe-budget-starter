@@ -106,7 +106,7 @@ export default function RegisterPage() {
         <p className="text-center text-gray-500 text-sm mt-6">
           Ai deja cont?{" "}
           <Link href="/login" className="text-teal-600 hover:text-teal-700 font-medium">
-            Autentifică-te
+            Intră în cont
           </Link>
         </p>
       </div>

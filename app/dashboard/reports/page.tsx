@@ -433,7 +433,7 @@ export default function ReportsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <h2 className="text-lg font-bold text-gray-900">
-                          ✨ AI Financial Coach
+                          ✨ Consilier Financiar AI
                         </h2>
                         <p className="text-sm text-gray-500 mt-0.5">
                           Analiză bazată pe {PERIOD_LABELS[period]}

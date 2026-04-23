@@ -48,7 +48,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-lg">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Setări cont</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6">Setările contului</h1>
 
       <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
         <h2 className="text-base font-semibold text-gray-900 mb-1">

@@ -84,7 +84,7 @@ export default function BanksPage() {
       const data = await res.json();
       if (!res.ok) { toast.error(data.error || "Eroare la salvare"); return; }
 
-      toast.success(editingBank ? "Bancă actualizată!" : "Bancă adăugată!");
+      toast.success(editingBank ? "Banca a fost actualizată!" : "Banca a fost adăugată!");
       closeModal();
       fetchBanks();
     } catch {
@@ -101,7 +101,7 @@ export default function BanksPage() {
       const res = await fetch(`/api/banks/${bank.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!res.ok) { toast.error(data.error || "Eroare la ștergere"); return; }
-      toast.success("Bancă ștearsă!");
+      toast.success("Banca a fost ștearsă!");
       fetchBanks();
     } catch {
       toast.error("A apărut o eroare neașteptată");
@@ -210,7 +210,7 @@ export default function BanksPage() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
-                {editingBank ? "Editează bancă" : "Adaugă bancă"}
+                {editingBank ? "Editează banca" : "Adaugă bancă"}
               </h2>
               <button
                 onClick={closeModal}
