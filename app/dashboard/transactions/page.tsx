@@ -549,7 +549,7 @@ export default function TransactionsPage() {
       {/* Total tranzacții */}
       {!loading && transactions.length > 0 && (
         <p className="text-xs text-gray-500 text-right">
-          {transactions.length} tranzacție{transactions.length !== 1 ? "" : ""}
+          {transactions.length} tranzacți{transactions.length === 1 ? "e" : "i"}
           {hasFilters ? " (filtrate)" : " în total"}
         </p>
       )}

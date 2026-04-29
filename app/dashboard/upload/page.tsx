@@ -75,7 +75,6 @@ export default function UploadPage() {
     setParsedTransactions([]);
     setImportError(null);
     setImportResult(null);
-    setSelectedBank("");
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,7 +108,7 @@ export default function UploadPage() {
         setParseError(result.error ?? "Eroare necunoscută la parsarea fișierului.");
       } else if (result.transactions.length === 0) {
         setParseError(
-          `Fișierul a fost citit (${result.rowCount ?? 0} rânduri) dar nu s-au putut detecta tranzacții. Verificați consola (F12) pentru coloanele detectate.`
+          "Fișierul a fost citit dar nu s-au putut detecta tranzacții. Asigură-te că fișierul conține coloane pentru dată, descriere și sumă."
         );
       } else {
         setParsedTransactions(result.transactions);
@@ -168,16 +167,26 @@ export default function UploadPage() {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Bancă
             </label>
-            <select
-              value={selectedBank}
-              onChange={(e) => setSelectedBank(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option value="">Alege banca...</option>
-              {banks.map((b) => (
-                <option key={b.id} value={b.id}>{b.name}</option>
-              ))}
-            </select>
+            {banks.length === 0 ? (
+              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                Nu ai nicio bancă adăugată.{" "}
+                <Link href="/dashboard/banks" className="font-medium underline">
+                  Adaugă o bancă
+                </Link>
+                {" "}înainte să imporți tranzacții.
+              </p>
+            ) : (
+              <select
+                value={selectedBank}
+                onChange={(e) => setSelectedBank(e.target.value)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500"
+              >
+                <option value="">Alege banca...</option>
+                {banks.map((b) => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Buton import */}

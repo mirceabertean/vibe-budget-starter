@@ -13,6 +13,14 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const friendlyError = (msg: string) => {
+    if (msg.includes("already registered") || msg.includes("already been registered"))
+      return "Există deja un cont cu acest email.";
+    if (msg.includes("Password should be") || msg.includes("password"))
+      return "Parola trebuie să aibă minim 6 caractere.";
+    return "A apărut o eroare. Încearcă din nou.";
+  };
+
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -27,7 +35,7 @@ export default function RegisterPage() {
       });
 
       if (error) {
-        setError(error.message);
+        setError(friendlyError(error.message));
         return;
       }
 
@@ -41,7 +49,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
         {/* Logo */}
         <div className="text-center mb-6">

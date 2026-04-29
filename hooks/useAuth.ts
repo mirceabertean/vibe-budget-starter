@@ -13,6 +13,7 @@ import { createClient } from "@/lib/supabase/client";
 interface AuthUser {
   id: string;
   email: string;
+  user_metadata: { name?: string; [key: string]: unknown };
 }
 
 export function useAuth() {
@@ -34,6 +35,7 @@ export function useAuth() {
         setUser({
           id: authUser.id,
           email: authUser.email || "",
+          user_metadata: authUser.user_metadata ?? {},
         });
       } catch (error) {
         console.error("Auth error:", error);

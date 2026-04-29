@@ -23,14 +23,12 @@ export async function GET(request: NextRequest) {
     let totalExpenses = 0;
     let transactionCount = transactions?.length ?? 0;
 
-    // 4. Calculează luna curentă
+    // 4. Calculează luna curentă (local, fără conversie UTC)
     const now = new Date();
-    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1)
-      .toISOString()
-      .split("T")[0];
-    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0)
-      .toISOString()
-      .split("T")[0];
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const firstDay = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-01`;
+    const lastDayDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    const lastDay = `${lastDayDate.getFullYear()}-${pad(lastDayDate.getMonth() + 1)}-${pad(lastDayDate.getDate())}`;
 
     let currentMonthIncome = 0;
     let currentMonthExpenses = 0;
