@@ -70,7 +70,7 @@ export default function DashboardPage() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">
-          Bun venit, {user?.email?.split("@")[0] || "Utilizator"}!
+          Bun venit, {user?.user_metadata?.name || user?.email?.split("@")[0] || "Utilizator"}!
         </h1>
         <p className="text-sm text-gray-600 mt-1">
           Rezumatul financiar pentru {currentMonth}
@@ -140,81 +140,69 @@ export default function DashboardPage() {
               <StatsCard
                 title="Nr. Tranzacții"
                 value={stats.transactionCount.toString()}
-                subtitle="importate total"
               />
             </div>
           </div>
         </>
       ) : null}
 
-      {/* Navigare rapidă */}
-      <div>
-        <h2 className="text-sm font-medium text-gray-600 mb-3 uppercase tracking-wide">
-          Navigare rapidă
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Link
-            href="/dashboard/transactions"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
-          >
-            <span className="text-3xl">💳</span>
-            <div>
-              <p className="font-semibold text-gray-900">Tranzacții</p>
-              <p className="text-sm text-gray-600">Vezi și editează tranzacțiile</p>
+      {/* Onboarding (fără date) sau Acțiuni rapide (cu date) */}
+      {stats && stats.transactionCount === 0 ? (
+        <div className="bg-teal-50 border border-teal-100 rounded-xl p-6">
+          <h2 className="text-base font-semibold text-teal-900 mb-4">
+            👋 Bun venit! Iată cum începi:
+          </h2>
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex items-start gap-3 flex-1">
+              <span className="w-7 h-7 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">1</span>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Adaugă o bancă</p>
+                <p className="text-xs text-gray-500 mt-0.5">ING, BCR, Revolut sau orice alt cont</p>
+                <Link href="/dashboard/banks" className="text-xs text-teal-600 hover:underline font-medium mt-1 inline-block">Mergi la Bănci →</Link>
+              </div>
             </div>
-          </Link>
-          <Link
-            href="/dashboard/banks"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
-          >
-            <span className="text-3xl">🏦</span>
-            <div>
-              <p className="font-semibold text-gray-900">Bănci</p>
-              <p className="text-sm text-gray-600">Gestionează conturile bancare</p>
+            <div className="flex items-start gap-3 flex-1">
+              <span className="w-7 h-7 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">2</span>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Importă extrasul bancar</p>
+                <p className="text-xs text-gray-500 mt-0.5">CSV sau Excel — detectare automată</p>
+                <Link href="/dashboard/upload" className="text-xs text-teal-600 hover:underline font-medium mt-1 inline-block">Mergi la Import →</Link>
+              </div>
             </div>
-          </Link>
-          <Link
-            href="/dashboard/categories"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
-          >
-            <span className="text-3xl">📁</span>
-            <div>
-              <p className="font-semibold text-gray-900">Categorii</p>
-              <p className="text-sm text-gray-600">Organizează tranzacțiile</p>
+            <div className="flex items-start gap-3 flex-1">
+              <span className="w-7 h-7 rounded-full bg-teal-600 text-white text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">3</span>
+              <div>
+                <p className="font-medium text-gray-900 text-sm">Explorează rapoartele</p>
+                <p className="text-xs text-gray-500 mt-0.5">Grafice și recomandări AI</p>
+                <Link href="/dashboard/reports" className="text-xs text-teal-600 hover:underline font-medium mt-1 inline-block">Mergi la Rapoarte →</Link>
+              </div>
             </div>
-          </Link>
-          <Link
-            href="/dashboard/currencies"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
-          >
-            <span className="text-3xl">💱</span>
-            <div>
-              <p className="font-semibold text-gray-900">Valute</p>
-              <p className="text-sm text-gray-600">Gestionează valutele</p>
-            </div>
-          </Link>
+          </div>
+        </div>
+      ) : stats && stats.transactionCount > 0 ? (
+        <div className="flex flex-col sm:flex-row gap-4">
           <Link
             href="/dashboard/upload"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+            className="flex-1 bg-white shadow rounded-xl p-5 flex items-center gap-4 hover:shadow-md transition-shadow border border-gray-100"
           >
             <span className="text-3xl">📤</span>
             <div>
-              <p className="font-semibold text-gray-900">Upload</p>
-              <p className="text-sm text-gray-600">Importă fișiere CSV / Excel</p>
+              <p className="font-semibold text-gray-900">Importă extras bancar</p>
+              <p className="text-sm text-gray-500">CSV sau Excel — Revolut, ING, BT</p>
             </div>
           </Link>
           <Link
             href="/dashboard/reports"
-            className="bg-white shadow rounded-lg p-5 flex items-center gap-4 hover:shadow-md transition-shadow"
+            className="flex-1 bg-white shadow rounded-xl p-5 flex items-center gap-4 hover:shadow-md transition-shadow border border-gray-100"
           >
             <span className="text-3xl">📈</span>
             <div>
-              <p className="font-semibold text-gray-900">Rapoarte</p>
-              <p className="text-sm text-gray-600">Grafice și analiză AI</p>
+              <p className="font-semibold text-gray-900">Rapoarte și AI Coach</p>
+              <p className="text-sm text-gray-500">Analiză și recomandări personalizate</p>
             </div>
           </Link>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }
